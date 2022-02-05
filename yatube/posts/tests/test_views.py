@@ -245,13 +245,13 @@ class PostsURLTests(TestCase):
         self.authorized_client.get(
             reverse(
                 "posts:profile_follow",
-                kwargs={"username": PostsURLTests.user.username},
+                kwargs={"username": PostsURLTests.user_2.username},
             )
         )
         new_post = Post.objects.create(
             text="New post",
-            group=PostsURLTests.group_2,
-            author=PostsURLTests.user_2,
+            group=PostsURLTests.group,
+            author=PostsURLTests.user,
         )
         response = self.authorized_client.get(reverse("posts:follow_index"))
         response_result = response.context["page_obj"][0]
