@@ -85,6 +85,8 @@ class PostsFormsTests(TestCase):
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertEqual(latest_post.text, form_data["text"])
         self.assertEqual(latest_post.group.pk, form_data["group"])
+        self.assertEqual(latest_post.image.name,
+                         f'posts/{form_data["image"].name}')
 
     def test_form_post_edit(self):
         post_id = PostsFormsTests.post.pk
@@ -125,6 +127,8 @@ class PostsFormsTests(TestCase):
             post_edited.group.pk,
             form_data_edited["group"],
         )
+        self.assertEqual(post_edited.image.name,
+                         f'posts/{form_data_edited["image"].name}')
 
     def test_form_new_post_cannot_be_created_by_guest(self):
         posts_count = Post.objects.count()

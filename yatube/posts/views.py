@@ -7,7 +7,7 @@ from .utils import paginator_def
 
 
 def index(request):
-    posts = Post.objects.all()
+    posts = Post.objects.select_related("group").all()
     page_obj = paginator_def(request, posts)
     context = {
         "page_obj": page_obj,
@@ -35,8 +35,7 @@ def profile(request, username):
     following = False
     if request.user.is_authenticated:
         follow = Follow.objects.filter(user=request.user, author=author)
-        follow_count = follow.count()
-        if follow_count != 0:
+        if follow.exists():
             following = True
     posts = author.posts.all()
     page_obj = paginator_def(request, posts)
@@ -65,7 +64,7 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     groups = Group.objects.all()
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
         form.save(commit=False)
         form.instance.author = request.user
@@ -126,10 +125,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    following_authors = Follow.objects.filter(user=request.user).values(
-        "author"
-    )
-    posts = Post.objects.filter(author__in=following_authors)
+    posts = Post.objects.filter(author__following__user=request.user)
     page_obj = paginator_def(request, posts)
     context = {
         "page_obj": page_obj,
@@ -141,10 +137,8 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    follow = Follow.objects.filter(user=request.user, author=author)
-    follow_count = follow.count()
-    if author != request.user and follow_count == 0:
-        Follow.objects.create(user=request.user, author=author)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect("posts:follow_index")
 
 
