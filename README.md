@@ -18,7 +18,7 @@ cd yatube
 ```
 Cоздать и активировать виртуальное окружение:
 ```
-python -m venv env
+python -m venv venv
 source venv/Scripts/activate
 python -m pip install --upgrade pip
 ```
